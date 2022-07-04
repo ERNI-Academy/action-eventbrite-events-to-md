@@ -1,0 +1,15 @@
+name: EB Events to File
+on:
+  workflow_dispatch:
+
+jobs:
+  update-readme-with-eventbrite:
+    name: Update this repo's profile README with latest events from Eventbrite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./action
+        with:
+          file_path: ./README_TEST.md
+          eventbrite_org_id: ${{ secrets.EventbriteOrgID }}
+          eventbrite_token: ${{ secrets.EventbriteToken }}

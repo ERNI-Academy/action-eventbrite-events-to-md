@@ -1,0 +1,36 @@
+{
+  "name": "action-eventbrite-events-to-md",
+  "version": "0.1.0",
+  "description": "This Github Action goal is to get the list of events from Eventbrite and write the list to a markdown file.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist",
+    "build:watch": "ncc build --watch src/index.ts -o dist",
+    "start:watch": "nodemon dist/index.js",
+    "dev": "concurrently \"npm:build:watch\" \"npm:start:watch\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ERNI-Academy/action-eventbrite-events-to-md.git"
+  },
+  "author": "ERNI",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/ERNI-Academy/action-eventbrite-events-to-md/issues"
+  },
+  "homepage": "https://github.com/ERNI-Academy/action-eventbrite-events-to-md#readme",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@vercel/ncc": "^0.34.0",
+    "concurrently": "^7.2.2",
+    "dotenv": "^16.0.1",
+    "nodemon": "^2.0.18",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@actions/core": "^1.9.0",
+    "@actions/exec": "^1.1.1",
+    "eventbrite": "^1.3.0",
+    "got": "^12.1.0"
+  }
+}

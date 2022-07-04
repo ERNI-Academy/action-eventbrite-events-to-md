@@ -1,0 +1,29 @@
+name: "Eventbrite Events to MD"
+author: "ERNI"
+description: "Allows you to show your latest events from Eventbrite on any markdown file (README or profile readme for example)"
+
+inputs:
+  gh_token:
+    description: "Github Access Token"
+    required: false
+    default: ${{ github.token }}
+  file_path:
+    description: "Comma separated paths of the readme files you want to update"
+    default: "./README.md"
+    required: false
+  eventbrite_org_id:
+    description: "The Eventbrite org ID"
+    required: true
+  eventbrite_token:
+    description: "The Eventbrite token with access to get events from the org"
+    required: true
+outputs:
+  results:
+    description: "JSON stringified array of events"
+
+runs:
+  using: node16
+  main: dist/action.js
+branding:
+  icon: "calendar"
+  color: "blue"
