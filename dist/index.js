@@ -9635,8 +9635,6 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/dotenv/config.js
 var config = __nccwpck_require__(4227);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(7147);
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@sindresorhus/is/dist/index.js
@@ -13742,8 +13740,18 @@ const got = source_create(defaults);
 
 
 
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
 ;// CONCATENATED MODULE: ./src/file-utils.ts
 
+
+const getFileContentsAsync = (filePath) => {
+    return external_fs_.readFileSync(filePath, "utf8");
+};
+const writeFileContentsAsync = (filePath, content) => {
+    core.info("Writing to " + filePath);
+    external_fs_.writeFileSync(filePath, content);
+};
 const buildFile = (content, contentToAdd, tag = "EVENTBRITE-EVENTS-LIST") => {
     const listTag = `<!-- ${tag}:`;
     const closingTag = "-->";
@@ -13753,7 +13761,6 @@ const buildFile = (content, contentToAdd, tag = "EVENTBRITE-EVENTS-LIST") => {
     if (startOfOpeningTagIndex === -1 ||
         endOfOpeningTagIndex === -1 ||
         startOfClosingTagIndex === -1) {
-        // Exit with error if comment is not found on the readme
         core.error(`Cannot find the comment tag on the file:\n${listTag}START -->\n${listTag}END -->`);
         process.exit(1);
     }
@@ -13788,7 +13795,6 @@ const gitCommit = (ghToken, filePath, options) => __awaiter(void 0, void 0, void
         options.username,
     ]);
     if (ghToken) {
-        // git remote set-url origin
         yield exec.exec("git", [
             "remote",
             "set-url",
@@ -13818,7 +13824,6 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
-
 const GITHUB_TOKEN = core.getInput("gh_token");
 core.setSecret(GITHUB_TOKEN);
 const FILE_PATH = core.getInput("file_path");
@@ -13828,21 +13833,21 @@ const EVENTBRITE_ORG_ID = core.getInput("eventbrite_org_id", {
 const EVENTBRITE_TOKEN = core.getInput("eventbrite_token", { required: true });
 core.setSecret(EVENTBRITE_TOKEN);
 const eventbriteApiUrl = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
+const getEvents = () => src_awaiter(void 0, void 0, void 0, function* () {
+    const response = yield got_dist_source.get(eventbriteApiUrl, {
+        headers: { Authorization: `Bearer ${EVENTBRITE_TOKEN}` },
+    })
+        .json();
+    return response.events;
+});
 const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield got_dist_source.get(eventbriteApiUrl, {
-            headers: { Authorization: `Bearer ${EVENTBRITE_TOKEN}` },
-        })
-            .json();
-        let eventList = [];
-        if (response.events) {
-            eventList = response.events.map((event) => `- [${event.name.text}](${event.url})`);
-        }
-        const fileData = external_fs_.readFileSync(FILE_PATH, "utf8");
+        const events = yield getEvents();
+        const eventList = events === null || events === void 0 ? void 0 : events.map((event) => `- [${event.name.text}](${event.url})`);
+        const fileData = getFileContentsAsync(FILE_PATH);
         const newFileData = buildFile(fileData, eventList.join("\n"));
         if (fileData !== newFileData) {
-            core.info("Writing to " + FILE_PATH);
-            external_fs_.writeFileSync(FILE_PATH, newFileData);
+            writeFileContentsAsync(FILE_PATH, newFileData);
         }
         if (!process.env.LOCAL_MODE) {
             gitCommit(GITHUB_TOKEN, FILE_PATH, {
@@ -13851,7 +13856,7 @@ const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
                 message: `Update EB Events list for file ${FILE_PATH}`,
             });
         }
-        core.setOutput("result", response.events);
+        core.setOutput("result", events);
     }
     catch (error) {
         core.error(error);

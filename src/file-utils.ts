@@ -1,4 +1,17 @@
 import * as core from "@actions/core";
+import * as fs from "fs";
+
+export const getFileContentsAsync = (filePath: string): string => {
+  return fs.readFileSync(filePath, "utf8");
+};
+
+export const writeFileContentsAsync = (
+  filePath: string,
+  content: string
+): void => {
+  core.info("Writing to " + filePath);
+  fs.writeFileSync(filePath, content);
+};
 
 export const buildFile = (
   content: string,
