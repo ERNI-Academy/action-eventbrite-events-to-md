@@ -11,5 +11,5 @@ jobs:
       - uses: ./
         with:
           file_path: ./README_TEST.md
-          eventbrite_org_id: ${{ secrets.EventbriteOrgID }}
-          eventbrite_token: ${{ secrets.EventbriteToken }}
+          eventbrite_org_id: ${{ secrets.EVENTBRITE_ORG_ID }}
+          eventbrite_token: ${{ secrets.EVENTBRITE_TOKEN }}
