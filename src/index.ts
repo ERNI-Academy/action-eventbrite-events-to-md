@@ -7,6 +7,7 @@ import {
   writeFileContentsAsync,
 } from "./file-utils";
 import { gitCommit } from "./git-utils";
+import { EventbriteEventsResponse } from "./types/eventbrite-events-response";
 
 const GITHUB_TOKEN = core.getInput("gh_token");
 core.setSecret(GITHUB_TOKEN);
@@ -17,22 +18,22 @@ const EVENTBRITE_ORG_ID = core.getInput("eventbrite_org_id", {
 const EVENTBRITE_TOKEN = core.getInput("eventbrite_token", { required: true });
 core.setSecret(EVENTBRITE_TOKEN);
 
-const eventbriteApiUrl = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
+const EVENTBRITE_URL = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
 
 const getEvents = async () => {
   const response = await got
-    .get(eventbriteApiUrl, {
+    .get(EVENTBRITE_URL, {
       headers: { Authorization: `Bearer ${EVENTBRITE_TOKEN}` },
     })
-    .json<any>();
-  return response.events;
+    .json<EventbriteEventsResponse>();
+  return response?.events || [];
 };
 
 const runAction = async () => {
   try {
     const events = await getEvents();
-    const eventList = events?.map(
-      (event: any) => `- [${event.name.text}](${event.url})`
+    const eventList = events.map(
+      (event) => `- [${event.name.text}](${event.url})`
     );
     const fileData = getFileContentsAsync(FILE_PATH);
     const newFileData = buildFile(fileData, eventList.join("\n"));

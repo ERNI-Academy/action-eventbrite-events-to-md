@@ -13832,18 +13832,18 @@ const EVENTBRITE_ORG_ID = core.getInput("eventbrite_org_id", {
 });
 const EVENTBRITE_TOKEN = core.getInput("eventbrite_token", { required: true });
 core.setSecret(EVENTBRITE_TOKEN);
-const eventbriteApiUrl = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
+const EVENTBRITE_URL = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
 const getEvents = () => src_awaiter(void 0, void 0, void 0, function* () {
-    const response = yield got_dist_source.get(eventbriteApiUrl, {
+    const response = yield got_dist_source.get(EVENTBRITE_URL, {
         headers: { Authorization: `Bearer ${EVENTBRITE_TOKEN}` },
     })
         .json();
-    return response.events;
+    return (response === null || response === void 0 ? void 0 : response.events) || [];
 });
 const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
     try {
         const events = yield getEvents();
-        const eventList = events === null || events === void 0 ? void 0 : events.map((event) => `- [${event.name.text}](${event.url})`);
+        const eventList = events.map((event) => `- [${event.name.text}](${event.url})`);
         const fileData = getFileContentsAsync(FILE_PATH);
         const newFileData = buildFile(fileData, eventList.join("\n"));
         if (fileData !== newFileData) {
