@@ -1,10 +1,10 @@
 export interface EventbriteEventsResponse {
-  events: EventbriteEvent[];
+  events: EventbriteEvent[]
 }
 
 export interface EventbriteEvent {
   name: {
-    text: string;
-  };
-  url: string;
+    text: string
+  }
+  url: string
 }

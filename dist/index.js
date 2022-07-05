@@ -13746,15 +13746,15 @@ var external_fs_ = __nccwpck_require__(7147);
 
 
 const getFileContentsAsync = (filePath) => {
-    return external_fs_.readFileSync(filePath, "utf8");
+    return external_fs_.readFileSync(filePath, 'utf8');
 };
 const writeFileContentsAsync = (filePath, content) => {
-    core.info("Writing to " + filePath);
+    core.info('Writing to ' + filePath);
     external_fs_.writeFileSync(filePath, content);
 };
-const buildFile = (content, contentToAdd, tag = "EVENTBRITE-EVENTS-LIST") => {
+const buildFile = (content, contentToAdd, tag = 'EVENTBRITE-EVENTS-LIST') => {
     const listTag = `<!-- ${tag}:`;
-    const closingTag = "-->";
+    const closingTag = '-->';
     const startOfOpeningTagIndex = content.indexOf(`${listTag}START`);
     const endOfOpeningTagIndex = content.indexOf(closingTag, startOfOpeningTagIndex);
     const startOfClosingTagIndex = content.indexOf(`${listTag}END`, endOfOpeningTagIndex);
@@ -13766,11 +13766,11 @@ const buildFile = (content, contentToAdd, tag = "EVENTBRITE-EVENTS-LIST") => {
     }
     return [
         content.slice(0, endOfOpeningTagIndex + closingTag.length),
-        "\n",
+        '\n',
         contentToAdd,
-        "\n",
+        '\n',
         content.slice(startOfClosingTagIndex),
-    ].join("");
+    ].join('');
 };
 
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
@@ -13788,25 +13788,20 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 const gitCommit = (ghToken, filePath, options) => __awaiter(void 0, void 0, void 0, function* () {
-    yield exec.exec("git", [
-        "config",
-        "--global",
-        "user.email",
-        options.username,
-    ]);
+    yield exec.exec('git', ['config', '--global', 'user.email', options.username]);
     if (ghToken) {
-        yield exec.exec("git", [
-            "remote",
-            "set-url",
-            "origin",
+        yield exec.exec('git', [
+            'remote',
+            'set-url',
+            'origin',
             `https://${ghToken}@github.com/${process.env.GITHUB_REPOSITORY}.git`,
         ]);
     }
-    yield exec.exec("git", ["config", "--global", "user.name", options.username]);
-    yield exec.exec("git", ["add", filePath]);
-    yield exec.exec("git", ["commit", "-m", options.message]);
-    yield exec.exec("git", ["push"]);
-    core.info("File updated successfully in the upstream repository");
+    yield exec.exec('git', ['config', '--global', 'user.name', options.username]);
+    yield exec.exec('git', ['add', filePath]);
+    yield exec.exec('git', ['commit', '-m', options.message]);
+    yield exec.exec('git', ['push']);
+    core.info('File updated successfully in the upstream repository');
 });
 
 ;// CONCATENATED MODULE: ./src/index.ts
@@ -13824,13 +13819,13 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
-const GITHUB_TOKEN = core.getInput("gh_token");
+const GITHUB_TOKEN = core.getInput('gh_token');
 core.setSecret(GITHUB_TOKEN);
-const FILE_PATH = core.getInput("file_path");
-const EVENTBRITE_ORG_ID = core.getInput("eventbrite_org_id", {
+const FILE_PATH = core.getInput('file_path');
+const EVENTBRITE_ORG_ID = core.getInput('eventbrite_org_id', {
     required: true,
 });
-const EVENTBRITE_TOKEN = core.getInput("eventbrite_token", { required: true });
+const EVENTBRITE_TOKEN = core.getInput('eventbrite_token', { required: true });
 core.setSecret(EVENTBRITE_TOKEN);
 const EVENTBRITE_URL = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
 const getEvents = () => src_awaiter(void 0, void 0, void 0, function* () {
@@ -13844,8 +13839,8 @@ const writeAndCommit = (newData) => {
     writeFileContentsAsync(FILE_PATH, newData);
     if (!process.env.LOCAL_MODE) {
         gitCommit(GITHUB_TOKEN, FILE_PATH, {
-            username: "eb-events-bot",
-            email: "bot@example.com",
+            username: 'eb-events-bot',
+            email: 'bot@example.com',
             message: `Update EB Events list for file ${FILE_PATH}`,
         });
     }
@@ -13855,11 +13850,11 @@ const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
         const events = yield getEvents();
         const eventList = events.map((event) => `- [${event.name.text}](${event.url})`);
         const fileData = getFileContentsAsync(FILE_PATH);
-        const newFileData = buildFile(fileData, eventList.join("\n"));
+        const newFileData = buildFile(fileData, eventList.join('\n'));
         if (fileData !== newFileData) {
             writeAndCommit(newFileData);
         }
-        core.setOutput("result", events);
+        core.setOutput('result', events);
     }
     catch (error) {
         core.error(error);
