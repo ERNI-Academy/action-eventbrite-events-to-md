@@ -13840,6 +13840,16 @@ const getEvents = () => src_awaiter(void 0, void 0, void 0, function* () {
         .json();
     return (response === null || response === void 0 ? void 0 : response.events) || [];
 });
+const writeAndCommit = (newData) => {
+    writeFileContentsAsync(FILE_PATH, newData);
+    if (!process.env.LOCAL_MODE) {
+        gitCommit(GITHUB_TOKEN, FILE_PATH, {
+            username: "eb-events-bot",
+            email: "bot@example.com",
+            message: `Update EB Events list for file ${FILE_PATH}`,
+        });
+    }
+};
 const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
     try {
         const events = yield getEvents();
@@ -13847,14 +13857,7 @@ const runAction = () => src_awaiter(void 0, void 0, void 0, function* () {
         const fileData = getFileContentsAsync(FILE_PATH);
         const newFileData = buildFile(fileData, eventList.join("\n"));
         if (fileData !== newFileData) {
-            writeFileContentsAsync(FILE_PATH, newFileData);
-        }
-        if (!process.env.LOCAL_MODE) {
-            gitCommit(GITHUB_TOKEN, FILE_PATH, {
-                username: "eb-events-bot",
-                email: "bot@example.com",
-                message: `Update EB Events list for file ${FILE_PATH}`,
-            });
+            writeAndCommit(newFileData);
         }
         core.setOutput("result", events);
     }

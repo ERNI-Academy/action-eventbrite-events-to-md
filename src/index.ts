@@ -17,7 +17,6 @@ const EVENTBRITE_ORG_ID = core.getInput("eventbrite_org_id", {
 });
 const EVENTBRITE_TOKEN = core.getInput("eventbrite_token", { required: true });
 core.setSecret(EVENTBRITE_TOKEN);
-
 const EVENTBRITE_URL = `https://www.eventbriteapi.com/v3/organizations/${EVENTBRITE_ORG_ID}/events?order_by=start_desc&page_size=5`;
 
 const getEvents = async () => {
@@ -29,6 +28,17 @@ const getEvents = async () => {
   return response?.events || [];
 };
 
+const writeAndCommit = (newData: string) => {
+  writeFileContentsAsync(FILE_PATH, newData);
+  if (!process.env.LOCAL_MODE) {
+    gitCommit(GITHUB_TOKEN, FILE_PATH, {
+      username: "eb-events-bot",
+      email: "bot@example.com",
+      message: `Update EB Events list for file ${FILE_PATH}`,
+    });
+  }
+};
+
 const runAction = async () => {
   try {
     const events = await getEvents();
@@ -38,14 +48,7 @@ const runAction = async () => {
     const fileData = getFileContentsAsync(FILE_PATH);
     const newFileData = buildFile(fileData, eventList.join("\n"));
     if (fileData !== newFileData) {
-      writeFileContentsAsync(FILE_PATH, newFileData);
-    }
-    if (!process.env.LOCAL_MODE) {
-      gitCommit(GITHUB_TOKEN, FILE_PATH, {
-        username: "eb-events-bot",
-        email: "bot@example.com",
-        message: `Update EB Events list for file ${FILE_PATH}`,
-      });
+      writeAndCommit(newFileData);
     }
     core.setOutput("result", events);
   } catch (error) {
